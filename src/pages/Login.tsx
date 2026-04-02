@@ -1,7 +1,7 @@
 /**
  * Public login page: validates credentials against mockData via AppContext.login().
  */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useApp } from "@/context/AppContext";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -9,14 +9,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { GraduationCap, Loader2 } from "lucide-react";
 
-export default function Login() {
-  const { login } = useApp();
+export default function Login({ defaultMode = "login" }: { defaultMode?: "login" | "register" }) {
+  const { login, currentUser } = useApp();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [mode, setMode] = useState<"login" | "register">("login");
+  const [mode, setMode] = useState<"login" | "register">(defaultMode);
+
+  useEffect(() => {
+    if (!currentUser) return;
+    navigate("/");
+  }, [currentUser, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,7 +31,7 @@ export default function Login() {
     setLoading(false);
     if (success) {
       const user = email === "admin@test.com" ? "admin" : "student";
-      navigate(user === "admin" ? "/admin" : "/dashboard");
+      navigate("/");
     } else {
       setError("Invalid email or password. Try the demo accounts below.");
     }

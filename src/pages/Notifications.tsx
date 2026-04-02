@@ -1,10 +1,24 @@
-/** In-app notification center; mark items as read. */
+/** In-app notification center; view details and mark as read. */
+import { useState } from "react";
+import type { KeyboardEvent } from "react";
+
 import { useApp } from "@/context/AppContext";
 import { Badge } from "@/components/ui/badge";
-import { Bell, CheckCheck, ShoppingBag, CreditCard, Shield, Info } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Bell, Info, CreditCard, Shield, ShoppingBag } from "lucide-react";
 import type { Notification } from "@/data/mockData";
 
-const typeIcon: Record<Notification["type"], React.ReactNode> = {
+import type { ReactNode } from "react";
+
+const typeIcon: Record<Notification["type"], ReactNode> = {
   purchase: <ShoppingBag className="h-4 w-4 text-success" />,
   payment: <CreditCard className="h-4 w-4 text-info" />,
   verification: <Shield className="h-4 w-4 text-primary" />,
@@ -13,6 +27,20 @@ const typeIcon: Record<Notification["type"], React.ReactNode> = {
 
 export default function Notifications() {
   const { notifications, markNotificationRead } = useApp();
+  const [active, setActive] = useState<Notification | null>(null);
+  const [open, setOpen] = useState(false);
+
+  const openDetails = (n: Notification) => {
+    setActive(n);
+    setOpen(true);
+  };
+
+  const handleListKeyDown = (e: KeyboardEvent<HTMLButtonElement>, n: Notification) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      openDetails(n);
+    }
+  };
 
   return (
     <div className="space-y-6 max-w-5xl">
@@ -29,10 +57,12 @@ export default function Notifications() {
       ) : (
         <div className="space-y-2">
           {notifications.map((n, i) => (
-            <div
+            <button
               key={n.id}
-              onClick={() => markNotificationRead(n.id)}
-              className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all animate-fade-up active:scale-[0.99] ${
+              type="button"
+              onClick={() => openDetails(n)}
+              onKeyDown={(e) => handleListKeyDown(e, n)}
+              className={`w-full text-left flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all animate-fade-up active:scale-[0.99] ${
                 n.read ? "bg-card opacity-70" : "bg-card shadow-sm border-primary/15"
               }`}
               style={{ animationDelay: `${i * 0.04}s` }}
@@ -45,10 +75,60 @@ export default function Notifications() {
               {!n.read && (
                 <div className="h-2 w-2 rounded-full bg-accent shrink-0 mt-2" />
               )}
-            </div>
+            </button>
           ))}
         </div>
       )}
+
+      <Dialog
+        open={open}
+        onOpenChange={(next) => {
+          setOpen(next);
+          if (!next) setActive(null);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <div className="flex items-center gap-3">
+              <div className="mt-0.5 shrink-0">{active ? typeIcon[active.type] : null}</div>
+              <DialogTitle className="text-base">{active ? active.type.toUpperCase() : "Notification"}</DialogTitle>
+            </div>
+            <DialogDescription>{active?.date}</DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <p className="text-sm leading-relaxed">{active?.message}</p>
+            {active && (
+              <Badge
+                variant="outline"
+                className={`uppercase tracking-wider ${
+                  active.read ? "text-muted-foreground" : "text-accent border-accent/20 bg-accent/10"
+                }`}
+              >
+                {active.read ? "Read" : "Unread"}
+              </Badge>
+            )}
+          </div>
+
+          <DialogFooter>
+            {active && !active.read ? (
+              <Button
+                onClick={() => {
+                  markNotificationRead(active.id);
+                  setActive({ ...active, read: true });
+                  setOpen(false);
+                }}
+              >
+                Mark as read
+              </Button>
+            ) : (
+              <Button variant="outline" onClick={() => setOpen(false)}>
+                Close
+              </Button>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

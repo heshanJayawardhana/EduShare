@@ -11,6 +11,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppProvider, useApp } from "@/context/AppContext";
 import { AppLayout } from "@/components/AppLayout";
 import Login from "@/pages/Login";
+import Signup from "@/pages/Signup";
+import Home from "@/pages/Home";
 import StudentDashboard from "@/pages/StudentDashboard";
 import Resources from "@/pages/Resources";
 import Cart from "@/pages/Cart";
@@ -66,7 +68,9 @@ const App = () => (
       <AppProvider>
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<LoginRedirect />} />
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login defaultMode="login" />} />
+            <Route path="/signup" element={<Signup />} />
             <Route path="/*" element={<ProtectedRoutes />} />
           </Routes>
         </BrowserRouter>
@@ -74,14 +78,5 @@ const App = () => (
     </TooltipProvider>
   </QueryClientProvider>
 );
-
-/** Home route: show Login or send user to role-appropriate dashboard. */
-function LoginRedirect() {
-  const { currentUser } = useApp();
-  if (currentUser) {
-    return <Navigate to={currentUser.role === "admin" ? "/admin" : "/dashboard"} replace />;
-  }
-  return <Login />;
-}
 
 export default App;
