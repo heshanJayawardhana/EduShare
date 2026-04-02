@@ -1,9 +1,15 @@
+/**
+ * HTTP handlers for payments: checkout, listing transactions, admin status updates,
+ * and seller withdrawals. Assumes auth middleware already set req.user.
+ */
 const Transaction = require("../models/Transaction");
 const Resource = require("../models/Resource");
 const Withdrawal = require("../models/Withdrawal");
 
+/** @returns {string} Today's date as YYYY-MM-DD (for stored transaction/withdrawal dates). */
 const todayString = () => new Date().toISOString().split("T")[0];
 
+/** Shapes a Mongoose transaction document for JSON responses (hides internal fields if any). */
 const toTransactionDto = (t) => ({
   id: t.id,
   date: t.date,
@@ -15,6 +21,10 @@ const toTransactionDto = (t) => ({
   sellerId: t.sellerId,
 });
 
+/**
+ * Student checkout: validates resources are verified, creates pending Transaction rows
+ * per line item (amount = price * quantity). Card metadata stored only for demo.
+ */
 const checkout = async (req, res) => {
   const buyerId = req.user.id;
   const { paymentMethod, items, card } = req.body;
@@ -29,9 +39,20 @@ const checkout = async (req, res) => {
 
   const byId = new Map(resources.map((r) => [r.id, r]));
 
+  const missingResourceIds = resourceIds.filter((id) => !byId.has(id));
+  if (missingResourceIds.length > 0) {
+    return res.status(400).json({
+      message: `Invalid resource(s): ${missingResourceIds.join(", ")}`,
+      missingResourceIds,
+    });
+  }
+
   for (const item of items) {
     const r = byId.get(item.resourceId);
-    if (!r) return res.status(400).json({ message: `Invalid resource: ${item.resourceId}` });
+    if (!r) {
+      // This should no longer happen due to the check above, but keep the guard anyway.
+      return res.status(400).json({ message: `Invalid resource: ${item.resourceId}` });
+    }
     if (r.status !== "verified") {
       return res.status(400).json({ message: `Resource is not purchasable: ${r.title}` });
     }
@@ -72,6 +93,9 @@ const checkout = async (req, res) => {
   }
 };
 
+/**
+ * Admin PATCH: moves transaction status along allowed paths (e.g. pending → paid).
+ */
 const updateTransactionStatus = async (req, res) => {
   const { transactionId } = req.params;
   const { status } = req.body;
@@ -97,6 +121,7 @@ const updateTransactionStatus = async (req, res) => {
   return res.json({ transaction: toTransactionDto(txn) });
 };
 
+/** Lists transactions: all for admin; buyer/seller scoped for students. */
 const getTransactions = async (req, res) => {
   const { role, id } = req.user;
 
@@ -108,6 +133,9 @@ const getTransactions = async (req, res) => {
   return res.json({ transactions: txns.map(toTransactionDto) });
 };
 
+/**
+ * Student seller: withdraws full available balance (paid sales minus prior withdrawals).
+ */
 const withdraw = async (req, res) => {
   const sellerId = req.user.id;
 
@@ -149,6 +177,7 @@ const withdraw = async (req, res) => {
   });
 };
 
+/** Returns withdrawal history for the current user (seller). */
 const getWithdrawals = async (req, res) => {
   const sellerId = req.user.id;
   const withdrawals = await Withdrawal.find({ sellerId }).sort({ createdAt: -1 }).lean();

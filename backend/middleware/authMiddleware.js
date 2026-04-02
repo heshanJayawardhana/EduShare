@@ -1,5 +1,9 @@
+/**
+ * Auth: resolves demo-style user id from x-user-id header (no JWT).
+ */
 const User = require("../models/User");
 
+/** Middleware: requires x-user-id, loads User from DB, sets req.user { id, role }. */
 const requireUser = async (req, res, next) => {
   const userId = req.headers["x-user-id"];
   if (!userId || typeof userId !== "string") {
@@ -16,6 +20,7 @@ const requireUser = async (req, res, next) => {
   }
 };
 
+/** Factory: returns middleware that allows only the given roles (403 otherwise). */
 const requireRole = (roles) => (req, res, next) => {
   if (!req.user) return res.status(401).json({ message: "Unauthenticated" });
   if (!roles.includes(req.user.role)) {

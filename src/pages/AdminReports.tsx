@@ -1,3 +1,4 @@
+/** Analytics-style report using mock aggregates and charts. */
 import { StatCard } from "@/components/StatCard";
 import { Download, TrendingUp, BookOpen, Users } from "lucide-react";
 import { users, resources, downloadStats, modules, monthlyEarnings } from "@/data/mockData";

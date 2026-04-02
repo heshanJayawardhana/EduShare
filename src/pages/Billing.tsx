@@ -1,3 +1,4 @@
+/** Earnings, transaction list, withdraw; merges API data with mock resources for labels. */
 import { useMemo, useState } from "react";
 import { useApp } from "@/context/AppContext";
 import { StatCard } from "@/components/StatCard";

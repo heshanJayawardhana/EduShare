@@ -1,3 +1,4 @@
+/** 404 view; logs unknown path to console in dev. */
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
 

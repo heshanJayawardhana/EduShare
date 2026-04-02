@@ -1,3 +1,4 @@
+/** Shopping cart review and link to payment. */
 import { useApp } from "@/context/AppContext";
 import { Button } from "@/components/ui/button";
 import { Trash2, ShoppingCart, ArrowRight } from "lucide-react";

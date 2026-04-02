@@ -1,3 +1,6 @@
+/**
+ * Shell layout: collapsible sidebar, top bar with notifications and user chip, main scroll area.
+ */
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { useApp } from "@/context/AppContext";
@@ -5,6 +8,7 @@ import { Bell } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 
+/** Wraps authenticated pages: sidebar + header + `<main>`. */
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const { currentUser, unreadCount } = useApp();
   const navigate = useNavigate();

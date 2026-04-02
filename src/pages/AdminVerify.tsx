@@ -1,3 +1,4 @@
+/** Approve or reject pending resources (updates local resource state). */
 import { useApp } from "@/context/AppContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";

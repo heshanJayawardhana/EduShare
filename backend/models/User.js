@@ -1,3 +1,4 @@
+/** Application user (student or admin). IDs match frontend mock users for demo auth. */
 const mongoose = require("mongoose");
 
 const UserSchema = new mongoose.Schema(

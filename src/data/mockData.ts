@@ -1,3 +1,7 @@
+/**
+ * Static demo data for EduShare UI: users, resources, transactions, notifications.
+ * Login and most views read from here; payment APIs persist to MongoDB when enabled.
+ */
 export interface User {
   id: string;
   name: string;

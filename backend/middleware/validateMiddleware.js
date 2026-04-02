@@ -1,3 +1,7 @@
+/**
+ * Express middleware factory: validates req.body with a Zod schema.
+ * On success, replaces req.body with parsed (coerced) data.
+ */
 const validateBody =
   (schema) =>
   (req, res, next) => {

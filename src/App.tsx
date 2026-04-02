@@ -1,3 +1,8 @@
+/**
+ * Root React component: providers, routing, role-based layouts.
+ * - "/" → Login or redirect if already logged in.
+ * - "/*" → Protected student or admin routes inside AppLayout.
+ */
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -21,6 +26,7 @@ import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
 
+/** Routes available after login; student vs admin trees. */
 function ProtectedRoutes() {
   const { currentUser } = useApp();
   if (!currentUser) return <Navigate to="/" replace />;
@@ -69,6 +75,7 @@ const App = () => (
   </QueryClientProvider>
 );
 
+/** Home route: show Login or send user to role-appropriate dashboard. */
 function LoginRedirect() {
   const { currentUser } = useApp();
   if (currentUser) {

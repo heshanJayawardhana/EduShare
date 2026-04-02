@@ -1,3 +1,6 @@
+/**
+ * Router NavLink with optional active/pending class names merged via `cn` (Tailwind).
+ */
 import { NavLink as RouterNavLink, NavLinkProps } from "react-router-dom";
 import { forwardRef } from "react";
 import { cn } from "@/lib/utils";

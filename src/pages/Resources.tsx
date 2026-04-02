@@ -1,3 +1,4 @@
+/** Browse verified resources; filter and add paid items to cart. */
 import { useState } from "react";
 import { useApp } from "@/context/AppContext";
 import { Button } from "@/components/ui/button";

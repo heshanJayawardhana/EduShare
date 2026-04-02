@@ -1,3 +1,4 @@
+/** In-app notification center; mark items as read. */
 import { useApp } from "@/context/AppContext";
 import { Badge } from "@/components/ui/badge";
 import { Bell, CheckCheck, ShoppingBag, CreditCard, Shield, Info } from "lucide-react";
