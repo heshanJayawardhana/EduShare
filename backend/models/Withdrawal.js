@@ -1,3 +1,4 @@
+/** Seller cash-out against accumulated paid transaction totals. */
 const mongoose = require("mongoose");
 
 const WithdrawalSchema = new mongoose.Schema(

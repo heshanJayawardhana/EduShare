@@ -1,3 +1,4 @@
+/** Admin overview: platform stats and charts from mockData. */
 import { useApp } from "@/context/AppContext";
 import { StatCard } from "@/components/StatCard";
 import { Users, FileCheck, Download, TrendingUp } from "lucide-react";

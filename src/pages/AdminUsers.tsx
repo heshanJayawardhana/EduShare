@@ -1,3 +1,4 @@
+/** Admin table of mock users (role filter demo). */
 import { useState } from "react";
 import { users } from "@/data/mockData";
 import { Badge } from "@/components/ui/badge";

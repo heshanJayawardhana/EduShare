@@ -1,3 +1,7 @@
+/**
+ * Payment REST routes under /api/payments.
+ * Uses Zod for body validation and header-based auth (x-user-id).
+ */
 const express = require("express");
 const { z } = require("zod");
 
@@ -5,6 +9,7 @@ const { requireUser, requireRole } = require("../middleware/authMiddleware");
 const { validateBody } = require("../middleware/validateMiddleware");
 const paymentController = require("../controllers/paymentController");
 
+/** Validates POST /checkout body: payment method, cart items, optional card details. */
 const checkoutSchema = z
   .object({
     paymentMethod: z.enum(["card", "paypal"]),
@@ -42,6 +47,7 @@ const checkoutSchema = z
     }
   });
 
+/** Validates PATCH body when admin updates a transaction status. */
 const transactionStatusSchema = z.object({
   status: z.enum(["paid", "verified"]),
 });

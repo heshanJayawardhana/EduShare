@@ -1,3 +1,9 @@
+/**
+ * Global application state: mock login, cart, resources, notifications;
+ * syncs payments/transactions/withdrawals with the Express API when available.
+ *
+ * Key functions are documented on each useCallback below.
+ */
 import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
 import {
   User, Resource, Transaction, Notification, CartItem,
@@ -55,12 +61,14 @@ interface AppContextType extends AppState {
 
 const AppContext = createContext<AppContextType | null>(null);
 
+/** Hook to read AppContext (throws if used outside AppProvider). */
 export const useApp = () => {
   const ctx = useContext(AppContext);
   if (!ctx) throw new Error("useApp must be inside AppProvider");
   return ctx;
 };
 
+/** Wraps the app; holds all shared state and API helpers. */
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [resources, setResources] = useState<Resource[]>(mockResources);
@@ -71,6 +79,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
+  /** Mock auth: matches email/password against mockData users. */
   const login = useCallback(async (email: string, password: string): Promise<boolean> => {
     await new Promise((r) => setTimeout(r, 800));
     const user = mockUsers.find((u) => u.email === email && u.password === password);
@@ -81,11 +90,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return false;
   }, []);
 
+  /** Clears session and cart. */
   const logout = useCallback(() => {
     setCurrentUser(null);
     setCart([]);
   }, []);
 
+  /** Adds resource to cart once (quantity 1 per line in this demo). */
   const addToCart = useCallback((resourceId: string) => {
     setCart((prev) => {
       if (prev.some((c) => c.resourceId === resourceId)) return prev;
@@ -93,12 +104,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     });
   }, []);
 
+  /** Removes a line from the shopping cart. */
   const removeFromCart = useCallback((resourceId: string) => {
     setCart((prev) => prev.filter((c) => c.resourceId !== resourceId));
   }, []);
 
+  /** Empties the cart. */
   const clearCart = useCallback(() => setCart([]), []);
 
+  /** Prepends an in-app notification (bell UI). */
   const addNotification = useCallback((message: string, type: Notification["type"]) => {
     setNotifications((prev) => [
       { id: `n${Date.now()}`, message, type, read: false, date: new Date().toISOString().split("T")[0] },
@@ -106,6 +120,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     ]);
   }, []);
 
+  /** Fetches transactions + withdrawals from backend for the current user. */
   const loadPaymentData = useCallback(async () => {
     if (!currentUser) return;
 
@@ -135,6 +150,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     void loadPaymentData();
   }, [loadPaymentData]);
 
+  /** POST checkout to API, clear cart, notify, refresh payment lists. */
   const checkout = useCallback(
     async (payload: CheckoutPayload): Promise<Transaction[]> => {
       if (!currentUser) return [];
@@ -180,10 +196,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     [API_BASE_URL, addNotification, cart, currentUser, loadPaymentData]
   );
 
+  /** Marks one notification as read. */
   const markNotificationRead = useCallback((id: string) => {
     setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
   }, []);
 
+  /** Local-only: admin verify flow updates resource status in UI state. */
   const updateResourceStatus = useCallback((id: string, status: Resource["status"]) => {
     setResources((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)));
     if (status === "verified") {
@@ -191,6 +209,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, [addNotification]);
 
+  /** Admin: PATCH transaction status on server then refresh + toast. */
   const updateTransactionStatus = useCallback((id: string, status: Transaction["status"]) => {
     // Keep the UI responsive: fire-and-refresh, and notify only after a successful backend update.
     void (async () => {
@@ -220,6 +239,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     })();
   }, [API_BASE_URL, addNotification, currentUser, loadPaymentData]);
 
+  /** Local-only: append a review and recompute average rating. */
   const addReview = useCallback((resourceId: string, rating: number, comment: string) => {
     if (!currentUser) return;
     setResources((prev) =>
@@ -240,6 +260,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     );
   }, [currentUser]);
 
+  /** Seller: request withdrawal via API; refresh balances on success. */
   const withdrawEarnings = useCallback(async (): Promise<boolean> => {
     if (!currentUser) return false;
 
@@ -259,6 +280,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return true;
   }, [API_BASE_URL, addNotification, currentUser, loadPaymentData]);
 
+  /** Computes seller earnings breakdown from transactions + withdrawals. */
   const getBalance = useCallback(() => {
     if (!currentUser) return { total: 0, available: 0, pending: 0 };
     const myTxns = transactions.filter((t) => t.sellerId === currentUser.id);

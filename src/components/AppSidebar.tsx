@@ -1,3 +1,6 @@
+/**
+ * Left navigation: different links for student vs admin; shows cart count and unread badges.
+ */
 import {
   LayoutDashboard, BookOpen, ShoppingCart, CreditCard, Receipt,
   Bell, Users, FileCheck, BarChart3, LogOut, GraduationCap, Wallet,

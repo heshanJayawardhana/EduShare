@@ -1,3 +1,4 @@
+/** Purchase record between buyer and seller; status workflow for admin approval. */
 const mongoose = require("mongoose");
 
 const TransactionSchema = new mongoose.Schema(

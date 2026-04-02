@@ -1,3 +1,4 @@
+/** Student home: stats cards and charts from mockData + context. */
 import { useApp } from "@/context/AppContext";
 import { StatCard } from "@/components/StatCard";
 import { Download, TrendingUp, BookOpen, DollarSign } from "lucide-react";

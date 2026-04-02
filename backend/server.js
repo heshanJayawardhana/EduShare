@@ -113,12 +113,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: (origin, callback) => {
-      // Allow same-origin requests (no Origin header).
-      if (!origin) return callback(null, true);
-      if (CLIENT_ORIGINS.includes(origin)) return callback(null, true);
-      return callback(null, false);
-    },
+    origin: true,
     credentials: true,
   })
 );

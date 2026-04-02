@@ -1,3 +1,6 @@
+/**
+ * Dashboard metric tile: title, large value, optional subtitle, colored icon panel.
+ */
 import { LucideIcon } from "lucide-react";
 
 interface StatCardProps {

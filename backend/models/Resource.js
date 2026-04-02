@@ -1,3 +1,4 @@
+/** Sellable learning resource; only verified resources can be purchased via checkout. */
 const mongoose = require("mongoose");
 
 const ResourceSchema = new mongoose.Schema(

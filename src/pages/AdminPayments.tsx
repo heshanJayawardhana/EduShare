@@ -1,3 +1,4 @@
+/** Admin payment queue: filter transactions; approve/verify via API. */
 import { useMemo, useState } from "react";
 import { useApp } from "@/context/AppContext";
 import { Button } from "@/components/ui/button";
